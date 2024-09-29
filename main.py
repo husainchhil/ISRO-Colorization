@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
 from fastapi.responses import FileResponse
-from fastapi import FastAPI, HTTPException, Form, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from Utilities.utils import colorize
 
 logging.basicConfig(level=logging.INFO,
