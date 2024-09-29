@@ -129,6 +129,8 @@ def preprocess_image(image: np.ndarray) -> np.ndarray:
     if image.ndim == 2:
         image = color.gray2rgb(image)
         print('The image is in grayscale and was converted to RGB')
+    elif image.ndim == 3:
+        print('The image is in RGB')
     elif image.shape[2] == 4:
         image = image[:, :, :3]
         print('The image is in RGBA and the alpha channel was removed')
@@ -138,5 +140,4 @@ def preprocess_image(image: np.ndarray) -> np.ndarray:
     image = tf.image.convert_image_dtype(image, tf.float32)
     image = color.rgb2lab(image)
     image_X = image[..., 0].reshape(1, 256, 256, 1) / 100
-    image_Y = image[..., 1:].reshape(1, 256, 256, 2) / 128
     return image_X
