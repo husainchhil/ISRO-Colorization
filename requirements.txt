@@ -1,0 +1,15 @@
+rich
+tqdm
+xarray
+pillow
+fastapi
+fastapi[standard]
+rasterio
+rioxarray
+ipykernel
+matplotlib
+tensorflow
+scikit-learn
+scikit-image
+pystac_client
+planetary_computer
