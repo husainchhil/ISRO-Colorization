@@ -1,14 +1,12 @@
-import sys
-from fastapi import FastAPI, HTTPException, Form, UploadFile, File
-from fastapi.responses import FileResponse
-import numpy as np
-import matplotlib.pyplot as plt
-import tensorflow as tf
-from tensorflow.keras.losses import Huber # type: ignore
-import logging
-from PIL import Image
 import io
-from Utilities.utils import preprocess_image, postprocess_image, colorize
+import sys
+import logging
+import numpy as np
+from PIL import Image
+import matplotlib.pyplot as plt
+from fastapi.responses import FileResponse
+from fastapi import FastAPI, HTTPException, Form, UploadFile, File
+from Utilities.utils import colorize
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
