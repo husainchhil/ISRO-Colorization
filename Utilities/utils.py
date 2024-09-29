@@ -1,3 +1,4 @@
+import logging
 import rasterio
 import warnings
 import rioxarray
@@ -6,9 +7,21 @@ import xarray as xr
 from tqdm import tqdm
 import tensorflow as tf
 from skimage import color
+from tensorflow.keras.losses import Huber # type: ignore
 from rasterio.errors import NotGeoreferencedWarning
 warnings.filterwarnings("ignore", category=NotGeoreferencedWarning)
 
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+
+loaded_model = tf.keras.models.load_model('Model/my_model.h5', compile=False)
+
+# Recompile the model with valid loss and reduction
+loaded_model.compile(optimizer='RMSprop',
+                     loss=Huber(reduction='sum_over_batch_size'),
+                     metrics=['accuracy'])
 
 def get_data(catalog, bbox, time):
     search = catalog.search(
@@ -107,6 +120,7 @@ def postprocess_image(tens_orig_l, out_ab, mode='bilinear'):
     # tens_orig_l 	1 x 1 x H_orig x W_orig
     # out_ab 		1 x 2 x H x W
 
+    logging.info(f"Postprocessing image with shape {tens_orig_l.shape} and {out_ab.shape}")
     HW_orig = tf.shape(tens_orig_l)[2:]
     HW = tf.shape(out_ab)[2:]
 
@@ -116,16 +130,17 @@ def postprocess_image(tens_orig_l, out_ab, mode='bilinear'):
     else:
         out_ab_orig = out_ab
 
-    # Concatenate L and ab channels to form LAB image
+    logging.info(f"Resized ab channels to shape {out_ab_orig.shape}")
     out_lab_orig = tf.concat([tens_orig_l, out_ab_orig], axis=1)
 
-    # Convert LAB to RGB
+    logging.info(f"Concatenated L and ab channels to shape {out_lab_orig.shape}")
     out_lab_orig_np = out_lab_orig.numpy()
     out_rgb = color.lab2rgb(out_lab_orig_np[0, ...].transpose((1, 2, 0)))
     return out_rgb
 
 
 def preprocess_image(image: np.ndarray) -> np.ndarray:
+    logging.info(f"Checking color space of image with shape.")
     if image.ndim == 2:
         image = color.gray2rgb(image)
         print('The image is in grayscale and was converted to RGB')
@@ -137,7 +152,42 @@ def preprocess_image(image: np.ndarray) -> np.ndarray:
     else:
         raise ValueError('The image is not in a recognized color space')
     image = tf.image.resize(image, (256, 256))
+    logging.info(f"Resizing image to shape {image.shape}")
+
     image = tf.image.convert_image_dtype(image, tf.float32)
+    logging.info(f"Converting image to float32 with shape {image.shape}")
+
     image = color.rgb2lab(image)
+    logging.info(f"Converting image to LAB color space with shape {image.shape}")
+
     image_X = image[..., 0].reshape(1, 256, 256, 1) / 100
+    logging.info(f"Extracting L channel with shape {image_X.shape}")
+
     return image_X
+
+
+def colorize(image: np.ndarray) -> np.ndarray:
+    try:
+        logging.info(f"Preprocessing image with shape {image.shape}")
+        X = preprocess_image(image)
+
+        logging.info(f"Predicting ab channels for image with shape {X.shape}")
+        predicted_ab = loaded_model.predict(X/100)
+
+        logging.info(f"Postprocessing image with shape {predicted_ab.shape}")
+        tens_orig_l = tf.convert_to_tensor(X.reshape(
+            # L channel scaled to [0, 100]
+            1, 1, 256, 256), dtype=tf.float32)
+
+        # Convert predicted_ab to TensorFlow Tensor and scale it back to [-128, 128]
+        out_ab = tf.convert_to_tensor(predicted_ab, dtype=tf.float32)
+        out_ab = tf.transpose(out_ab, perm=[0, 3, 1, 2])  # Reshape from NHWC to NCHW
+        out_ab = out_ab * 128  # Scale the predicted ab channels
+
+        # Assuming postprocess_tens is a function that converts L and ab channels to RGB
+        predicted_rgb = postprocess_image(tens_orig_l, out_ab)
+
+        return predicted_rgb
+    except Exception as e:
+        print(e)
+        return None
