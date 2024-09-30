@@ -1,3 +1,35 @@
+"""
+This module provides an API for colorizing SAR images using FastAPI.
+Functions:
+    colorize_image(file: UploadFile) -> FileResponse:
+        Endpoint to colorize a grayscale (Grayscale, RGB, or RGBA) image.
+        Accepts an image file upload and returns the colorized image.
+Modules:
+    io: Provides the core tools for working with streams.
+    sys: Provides access to some variables used or maintained by the interpreter.
+    logging: Provides a way to configure and use a flexible event logging system.
+    numpy: Provides support for large, multi-dimensional arrays and matrices.
+    PIL: Python Imaging Library, adds image processing capabilities.
+    matplotlib.pyplot: Provides a MATLAB-like interface for plotting.
+    fastapi.responses: Provides various response classes for FastAPI.
+    fastapi: A modern, fast (high-performance) web framework for building APIs with Python 3.6+.
+    Utilities.utils: Custom utility module containing the colorize function.
+Logging:
+    Configured to log INFO level messages with a specific format.
+FastAPI App:
+    Configured with title, description, and version.
+Endpoints:
+    /colorize/:
+        POST:
+            Description: Upload a grayscale (Grayscale, RGB, or RGBA) image to colorize.
+            Parameters:
+                file: UploadFile - The image file to be colorized.
+            Returns:
+                FileResponse - The colorized image file.
+            Raises:
+                HTTPException - If an error occurs during processing.
+"""
+
 import io
 import sys
 import logging

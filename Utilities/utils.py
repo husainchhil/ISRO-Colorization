@@ -1,3 +1,20 @@
+"""
+This module provides utilities for processing satellite images, including loading models, 
+preprocessing images, building and splitting images, and colorizing images using a trained model.
+Functions:
+    get_data(catalog, bbox, time):
+        Searches for satellite data within a specified bounding box and time range.
+    build_and_split_images(items, patch_size=(256, 256)):
+        Builds images from satellite data items and splits them into patches of a specified size.
+    process_and_save_images(data, index, X_dim=256, Y_dim=256):
+        Processes and filters image data, converting them to LAB color space.
+    postprocess_image(tens_orig_l, out_ab, mode='bilinear'):
+        Post-processes the image by resizing and concatenating L and ab channels, converting them to RGB.
+    preprocess_image(image: np.ndarray) -> np.ndarray:
+        Preprocesses an image by converting it to RGB if necessary, resizing, and converting to LAB color space.
+    colorize(image: np.ndarray) -> np.ndarray:
+        Colorizes a grayscale image using a pre-trained model and returns the colorized image in RGB format.
+"""
 import logging
 import rasterio
 import warnings
