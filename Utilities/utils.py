@@ -133,7 +133,7 @@ def process_and_save_images(data, index, X_dim=256, Y_dim=256):
     return lab_images
 
 
-def postprocess_image(tens_orig_l, out_ab, mode='bilinear'):
+def postprocess_image(tens_orig_l, out_ab, original_shape, mode='bilinear'):
     # tens_orig_l 	1 x 1 x H_orig x W_orig
     # out_ab 		1 x 2 x H x W
 
@@ -153,6 +153,12 @@ def postprocess_image(tens_orig_l, out_ab, mode='bilinear'):
     logging.info(f"Concatenated L and ab channels to shape {out_lab_orig.shape}")
     out_lab_orig_np = out_lab_orig.numpy()
     out_rgb = color.lab2rgb(out_lab_orig_np[0, ...].transpose((1, 2, 0)))
+    # Resizing back to original shape
+    out_rgb = tf.image.resize(out_rgb, original_shape)
+    out_rgb = tf.image.convert_image_dtype(out_rgb, tf.float32)
+
+    # converting to numpy array
+    out_rgb = out_rgb.numpy()
     return out_rgb
 
 
@@ -183,7 +189,7 @@ def preprocess_image(image: np.ndarray) -> np.ndarray:
     return image_X
 
 
-def colorize(image: np.ndarray) -> np.ndarray:
+def colorize(image: np.ndarray, image_shape):
     try:
         logging.info(f"Preprocessing image with shape {image.shape}")
         X = preprocess_image(image)
@@ -202,7 +208,8 @@ def colorize(image: np.ndarray) -> np.ndarray:
         out_ab = out_ab * 128  # Scale the predicted ab channels
 
         # Assuming postprocess_tens is a function that converts L and ab channels to RGB
-        predicted_rgb = postprocess_image(tens_orig_l, out_ab)
+        predicted_rgb = postprocess_image(tens_orig_l, out_ab, image_shape)
+        logging.info(f"Colorized image with shape {predicted_rgb.shape}")
 
         return predicted_rgb
     except Exception as e:

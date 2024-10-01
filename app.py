@@ -25,12 +25,14 @@ if image is not None:
     if colorize_button:
         try:
             image_data = image.read()
+            image_shape = Image.open(io.BytesIO(image_data)).size[::-1]
+
             logging.info(f"Received image with size {len(image_data)} bytes.")
 
             image = Image.open(io.BytesIO(image_data)).convert("RGB")
 
             logging.info(f"Colorizing image...")
-            predicted_rgb = colorize(np.array(image))
+            predicted_rgb = colorize(np.array(image), image_shape)
 
             plt.imsave("output.png", predicted_rgb)
             logging.info("Image colorized successfully.")
