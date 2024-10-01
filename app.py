@@ -11,12 +11,14 @@ from Utilities.utils import colorize
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
-st.set_page_config(page_title="SAR Image Colorization", page_icon="🌈", layout="centered")
+st.set_page_config(page_title="SAR Image Colorization", page_icon=Image.open('Assets/image.png'), layout="centered")
 
 st.title("🌈SAR Image Colorization")
 
 st.subheader("Colorize SAR images using a Deep Learning Model trained on SAR (Satellites for the dumb) Images.🚀")
 st.info("The model is specifically trained to colorize SAR images, so make sure to upload a SAR image for the best results.")
+
+st.divider()
 
 image = st.file_uploader("Upload a grayscale (Grayscale, RGB, or RGBA) image to colorize.", type=["jpg", "jpeg", "png"])
 
