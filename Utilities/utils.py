@@ -259,15 +259,12 @@ def colorize(image: np.ndarray, image_shape):
 
         logging.info(f"Postprocessing image with shape {predicted_ab.shape}")
         tens_orig_l = tf.convert_to_tensor(X.reshape(
-            # L channel scaled to [0, 100]
             1, 1, 256, 256), dtype=tf.float32)
 
-        # Convert predicted_ab to TensorFlow Tensor and scale it back to [-128, 128]
         out_ab = tf.convert_to_tensor(predicted_ab, dtype=tf.float32)
-        out_ab = tf.transpose(out_ab, perm=[0, 3, 1, 2])  # Reshape from NHWC to NCHW
-        out_ab = out_ab * 128  # Scale the predicted ab channels
+        out_ab = tf.transpose(out_ab, perm=[0, 3, 1, 2])
+        out_ab = out_ab * 128 
 
-        # Assuming postprocess_tens is a function that converts L and ab channels to RGB
         predicted_rgb = postprocess_image(tens_orig_l, out_ab, image_shape)
         logging.info(f"Colorized image with shape {predicted_rgb.shape}")
 
