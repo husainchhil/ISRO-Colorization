@@ -26,6 +26,7 @@ if image is not None:
         try:
             image_data = image.read()
             image_shape = Image.open(io.BytesIO(image_data)).size[::-1]
+            image_name = image.name
 
             logging.info(f"Received image with size {len(image_data)} bytes.")
 
@@ -40,7 +41,8 @@ if image is not None:
             gray_col, color_col = st.columns(2)
             gray_col.image(image, caption="Grayscale Image", use_column_width=True)
             color_col.image(predicted_rgb, caption="Colorized Image", use_column_width=True)
-            # st.download_button(label="Download Colorized Image", data=Image.open('output.png'), file_name="output.png", mime="image/png")
+            with open("output.png", "rb") as file:
+                st.download_button(label="Download Colorized Image", data=file, file_name=f'{image_name.split(".")[0]}_colorized.png', mime="image/png", use_container_width=True)
 
         except Exception as e:
             lineno = sys.exc_info()[-1].tb_lineno
