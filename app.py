@@ -49,7 +49,7 @@ if image is not None:
         except Exception as e:
             lineno = sys.exc_info()[-1].tb_lineno
             logging.error(f"Error at line {lineno}: \n\n{str(e)}")
-            raise Exception(str(e))
+            st.error("An error occurred while colorizing the image. Please try again.")
     else:
         st.toast("Click the 'Colorize Image' button to colorize the uploaded image.")
 else:
