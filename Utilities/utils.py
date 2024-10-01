@@ -41,6 +41,17 @@ loaded_model.compile(optimizer='RMSprop',
                      metrics=['accuracy'])
 
 def get_data(catalog, bbox, time):
+    """
+    Retrieve data from a given catalog based on bounding box and time.
+
+    Args:
+        catalog (object): The catalog object to search within.
+        bbox (list): A list of coordinates defining the bounding box [min_lon, min_lat, max_lon, max_lat].
+        time (str): The time range for the search in ISO 8601 format (e.g., "2020-01-01T00:00:00Z/2020-12-31T23:59:59Z").
+
+    Returns:
+        items (object): The collection of items found within the specified parameters.
+    """
     search = catalog.search(
         collections=["sentinel-1-grd"],
         bbox=bbox,
@@ -51,6 +62,17 @@ def get_data(catalog, bbox, time):
 
 
 def build_and_split_images(items, patch_size=(256, 256)):
+    """
+    Processes a list of items to build and split images into patches.
+    Args:
+        items (list): A list of items, where each item contains assets and properties.
+        patch_size (tuple, optional): The size of the patches to split the images into. Defaults to (256, 256).
+    Returns:
+        list: A list of image patches, where each patch is a numpy array of shape (patch_h, patch_w, 3).
+              Returns None if an exception occurs during processing.
+    Raises:
+        Exception: If an error occurs during the processing of the images, the exception is caught and printed.
+    """
     def build_image(item):
         if "vv" in item.assets:
             vv = (
@@ -113,7 +135,17 @@ def build_and_split_images(items, patch_size=(256, 256)):
         return None
 
 
-def process_and_save_images(data, index, X_dim=256, Y_dim=256):
+def process_and_save_images(data, X_dim=256, Y_dim=256):
+    """
+    Processes a list of images, filters out those that do not match the specified dimensions,
+    and converts the remaining images from RGB to LAB color space.
+    Args:
+        data (list): A list of images in RGB format.
+        X_dim (int, optional): The expected width of the images. Defaults to 256.
+        Y_dim (int, optional): The expected height of the images. Defaults to 256.
+    Returns:
+        np.ndarray: An array of images converted to LAB color space.
+    """
     filtered_data = []
     for i in range(len(data) - 1, -1, -1):
         try:
@@ -134,14 +166,20 @@ def process_and_save_images(data, index, X_dim=256, Y_dim=256):
 
 
 def postprocess_image(tens_orig_l, out_ab, original_shape, mode='bilinear'):
-    # tens_orig_l 	1 x 1 x H_orig x W_orig
-    # out_ab 		1 x 2 x H x W
-
+    """
+    Post-processes the output image from a neural network by resizing and converting color spaces.
+    Args:
+        tens_orig_l (tf.Tensor): The original L channel tensor of shape (batch_size, 1, height, width).
+        out_ab (tf.Tensor): The predicted ab channels tensor of shape (batch_size, 2, height, width).
+        original_shape (tuple): The original shape of the image (height, width).
+        mode (str, optional): The interpolation mode to use for resizing. Defaults to 'bilinear'.
+    Returns:
+        np.ndarray: The post-processed RGB image of shape (height, width, 3).
+    """
     logging.info(f"Postprocessing image with shape {tens_orig_l.shape} and {out_ab.shape}")
     HW_orig = tf.shape(tens_orig_l)[2:]
     HW = tf.shape(out_ab)[2:]
 
-    # Resize if necessary
     if HW_orig[0] != HW[0] or HW_orig[1] != HW[1]:
         out_ab_orig = tf.image.resize(out_ab, size=HW_orig, method=mode)
     else:
@@ -152,17 +190,39 @@ def postprocess_image(tens_orig_l, out_ab, original_shape, mode='bilinear'):
 
     logging.info(f"Concatenated L and ab channels to shape {out_lab_orig.shape}")
     out_lab_orig_np = out_lab_orig.numpy()
-    out_rgb = color.lab2rgb(out_lab_orig_np[0, ...].transpose((1, 2, 0)))
-    # Resizing back to original shape
-    out_rgb = tf.image.resize(out_rgb, original_shape)
-    out_rgb = tf.image.convert_image_dtype(out_rgb, tf.float32)
 
-    # converting to numpy array
+    out_rgb = color.lab2rgb(out_lab_orig_np[0, ...].transpose((1, 2, 0)))
+    logging.info(f"Converted LAB image to RGB with shape {out_lab_orig_np.shape}")
+
+    out_rgb = tf.image.resize(out_rgb, original_shape)
+    logging.info(f"Resized image to original shape {original_shape}")
+
+    out_rgb = tf.image.convert_image_dtype(out_rgb, tf.float32)
     out_rgb = out_rgb.numpy()
+    logging.info(f"Image postprocessed and converted to RGB with shape {out_rgb.shape}")
+
     return out_rgb
 
 
 def preprocess_image(image: np.ndarray) -> np.ndarray:
+    """
+    Preprocesses an input image by converting its color space, resizing, and extracting the L channel.
+    Parameters:
+    image (np.ndarray): Input image array. Can be in grayscale, RGB, or RGBA format.
+    Returns:
+    np.ndarray: Preprocessed image array with the L channel extracted and normalized.
+    Raises:
+    ValueError: If the input image is not in a recognized color space.
+    Steps:
+    1. Checks the color space of the input image and converts it to RGB if necessary.
+    2. Resizes the image to 256x256 pixels.
+    3. Converts the image to float32 data type.
+    4. Converts the image from RGB to LAB color space.
+    5. Extracts the L channel from the LAB image and normalizes it.
+    Notes:
+    - If the input image is in grayscale, it is converted to RGB.
+    - If the input image is in RGBA, the alpha channel is removed.
+    """
     logging.info(f"Checking color space of image with shape.")
     if image.ndim == 2:
         image = color.gray2rgb(image)
