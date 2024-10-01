@@ -3,8 +3,8 @@ tqdm
 xarray
 pillow
 fastapi
-fastapi[standard]
 rasterio
+streamlit
 rioxarray
 ipykernel
 matplotlib
@@ -12,4 +12,5 @@ tensorflow
 scikit-learn
 scikit-image
 pystac_client
+fastapi[standard]
 planetary_computer
