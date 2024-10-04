@@ -52,12 +52,13 @@ app = FastAPI(
 async def colorize_image(file: UploadFile = File(..., description="Upload a grayscale (Grayscale, RGB, or RGBA) image to colorize.")):
     try:
         image_data = file.file.read()
+        image_shape = Image.open(io.BytesIO(image_data)).size[::-1]
         logging.info(f"Received image with size {len(image_data)} bytes.")
 
         image = Image.open(io.BytesIO(image_data)).convert("RGB")
 
         logging.info(f"Colorizing image...")
-        predicted_rgb = colorize(np.array(image))
+        predicted_rgb = colorize(np.array(image), image_shape)
 
         plt.imsave("output.png", predicted_rgb)
         logging.info("Image colorized successfully.")
