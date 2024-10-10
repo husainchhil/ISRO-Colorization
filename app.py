@@ -1,3 +1,41 @@
+"""
+This Streamlit application allows users to upload grayscale images and colorize them using a deep learning model.
+Modules:
+    io: Core tools for working with streams.
+    sys: System-specific parameters and functions.
+    logging: Provides a flexible framework for emitting log messages from Python programs.
+    numpy: Fundamental package for scientific computing with Python.
+    PIL: Python Imaging Library for opening, manipulating, and saving many different image file formats.
+    streamlit: Framework for creating web apps.
+    matplotlib.pyplot: State-based interface to matplotlib for plotting.
+    Utilities.utils: Custom module containing the colorize function.
+Functions:
+    colorize(image: np.ndarray, image_shape: tuple) -> np.ndarray:
+        Colorizes the given grayscale image using a deep learning model.
+Streamlit Components:
+    st.set_page_config: Sets the configuration of the Streamlit app.
+    st.title: Displays the main title of the app.
+    st.subheader: Displays a subheader in the app.
+    st.info: Displays an informational message.
+    st.divider: Displays a horizontal divider.
+    st.file_uploader: Allows users to upload an image file.
+    st.button: Creates a button that users can click.
+    st.columns: Creates columns for layout purposes.
+    st.image: Displays an image.
+    st.download_button: Creates a button to download files.
+    st.toast: Displays a toast notification.
+    st.error: Displays an error message.
+Logging:
+    Configured to log messages with level INFO and above.
+    Logs the size of the uploaded image.
+    Logs the start and success of the colorization process.
+    Logs any errors that occur during the colorization process.
+Usage:
+    1. Upload a grayscale image using the file uploader.
+    2. Click the "Colorize Image" button to colorize the uploaded image.
+    3. View the original and colorized images side by side.
+    4. Download the colorized image using the download button.
+"""
 import io
 import sys
 import logging
