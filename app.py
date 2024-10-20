@@ -23,7 +23,7 @@ Streamlit Components:
     st.columns: Creates columns for layout purposes.
     st.image: Displays an image.
     st.download_button: Creates a button to download files.
-    st.toast: Displays a toast notification.
+    st.info: Displays a info notification.
     st.error: Displays an error message.
 Logging:
     Configured to log messages with level INFO and above.
@@ -89,6 +89,6 @@ if image is not None:
             logging.error(f"Error at line {lineno}: \n\n{str(e)}")
             st.error("An error occurred while colorizing the image. Please try again.")
     else:
-        st.toast("Click the 'Colorize Image' button to colorize the uploaded image.")
+        st.info("Click the 'Colorize Image' button to colorize the uploaded image.")
 else:
-    st.toast("Upload an image to get started.")
+    st.info("Upload an image to get started.")
