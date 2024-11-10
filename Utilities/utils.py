@@ -33,7 +33,7 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-loaded_model = tf.keras.models.load_model('Model/my_model.h5', compile=False)
+loaded_model = tf.keras.models.load_model('Model/colorisation_model.h5', compile=False)
 
 # Recompile the model with valid loss and reduction
 loaded_model.compile(optimizer='RMSprop',
