@@ -89,6 +89,6 @@ if image is not None:
             logging.error(f"Error at line {lineno}: \n\n{str(e)}")
             st.error("An error occurred while colorizing the image. Please try again.")
     else:
-        st.info("Click the 'Colorize Image' button to colorize the uploaded image.")
+        st.toast("Click the 'Colorize Image' button to colorize the uploaded image.")
 else:
-    st.info("Upload an image to get started.")
+    st.toast("Upload an image to get started.")
