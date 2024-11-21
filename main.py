@@ -32,6 +32,7 @@ Endpoints:
 
 import io
 import sys
+import uvicorn
 import logging
 import numpy as np
 from PIL import Image
@@ -68,3 +69,6 @@ async def colorize_image(file: UploadFile = File(..., description="Upload a gray
         lineno = sys.exc_info()[-1].tb_lineno
         logging.error(f"Error at line {lineno}: \n\n{str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

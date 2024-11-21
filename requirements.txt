@@ -3,6 +3,7 @@ tqdm
 xarray
 pillow
 fastapi
+uvicorn
 rasterio
 streamlit
 rioxarray
